@@ -465,7 +465,26 @@
       h("h2", { style: "font-size:22px;margin:0 0 10px" }, "Pitching"), h("div", { class: "grid" }, LB.filter(function (d) { return d.src === "pit"; }).map(function (d) { return leaderBox(d, fn, 10); }))];
   }
 
-  var plUI = { letter: "All", state: "all", role: "all" };
+  var plUI = { letter: "All", state: "all", role: "all", major: "all" };
+  // A major can sit in more than one group ("Business / Exercise Science").
+  var MAJOR_GROUPS = [
+    ["Business", /business|financ|account|sales|entrepreneur|supply chain|industry management|(^|[^s] )marketing|^marketing/i],
+    ["Sports Management & Marketing", /sports? (management|marketing|media)|athletic scout/i],
+    ["Exercise Science & Sports Medicine", /exercise|kinesiology|athletic training|movement science|physical therapy|occupational therapy|sports? (medicine|science|physiology|psychology)|personal trainer/i],
+    ["Engineering & Technology", /engineer|computer|electric|aviation|automotive|diesel|lineman|construction|architecture/i],
+    ["Science & Math", /(?<!exercise |sports? |computer |movement |health )science|biology|chemistry|neuroscience|astrophysics|math|actuarial/i],
+    ["Health & Nursing", /nursing|health|medical/i],
+    ["Criminal Justice", /criminal|criminology|law enforcement/i],
+    ["Education", /education/i],
+    ["Communications, Arts & General Studies", /communication|liberal arts|general studies|graphic design|international affairs|psychology/i],
+    ["Undecided", /undecided/i]
+  ];
+  var NO_MAJOR = "Not listed";
+  function majorGroups(p) {
+    if (!p.major || p.major === "NA") return [NO_MAJOR];
+    var g = MAJOR_GROUPS.filter(function (x) { return x[1].test(p.major); }).map(function (x) { return x[0]; });
+    return g.length ? g : ["Communications, Arts & General Studies"];
+  }
   function pagePlayers() {
     setNav("players"); document.title = "Players | " + SITE;
     var letters = ["All"].concat("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""));
@@ -475,6 +494,7 @@
       if (plUI.state !== "all" && s.state !== plUI.state) return false;
       if (plUI.role === "bat" && !B[p.id]) return false;
       if (plUI.role === "pit" && !PI[p.id]) return false;
+      if (plUI.major !== "all" && majorGroups(p).indexOf(plUI.major) < 0) return false;
       return true;
     }).map(function (p) { return { p: p, b: B[p.id], r: PI[p.id] }; });
     var cols = [C.fname, C.school, C.cls, C.pos, C.bt, C.home, C.hs, C.major,
@@ -487,6 +507,7 @@
         h("div", { class: "filters" },
           h("label", { for: "pl-state" }, "State "), h("select", { id: "pl-state", onchange: function (e) { plUI.state = e.target.value; render(); } }, [["all", "All"]].concat(STATES.map(function (s) { return [s, s]; })).map(function (o) { return h("option", { value: o[0], selected: plUI.state === o[0] }, o[1]); })),
           h("label", { for: "pl-role" }, "Role "), h("select", { id: "pl-role", onchange: function (e) { plUI.role = e.target.value; render(); } }, [["all", "All"], ["bat", "Hitters"], ["pit", "Pitchers"]].map(function (o) { return h("option", { value: o[0], selected: plUI.role === o[0] }, o[1]); })),
+          h("label", { for: "pl-major" }, "Major "), h("select", { id: "pl-major", onchange: function (e) { plUI.major = e.target.value; render(); } }, [h("option", { value: "all", selected: plUI.major === "all" }, "All majors")].concat(MAJOR_GROUPS.map(function (x) { return x[0]; }).concat([NO_MAJOR]).map(function (g) { var n = players.filter(function (p) { return majorGroups(p).indexOf(g) >= 0; }).length; return h("option", { value: g, selected: plUI.major === g }, g + " (" + n + ")"); }))),
           h("span", { class: "unq" }, rows.length + " shown")))),
       table({ id: "players", title: "Player Index", cols: cols, rows: rows, sort: { k: "_name", dir: 1 }, file: "players" })];
   }
@@ -505,7 +526,8 @@
             h("li", null, "Ranks within a division, state or all three states sort that same score."))),
         h("section", { class: "infobox" }, h("h3", null, "Data notes"),
           h("ul", null,
-            h("li", null, "Freshmen only (FR and redshirt FR), 2025-26 season. Lorain County doesn't publish class, so its first-year players are included as \"1st yr\"."),
+            h("li", null, "Freshmen only (FR and redshirt FR), 2025-26 season."),
+            h("li", null, "The Major filter on the Players page groups similar majors. A player with two listed majors can appear in both groups, and \"(planned)\" majors are included."),
             h("li", null, "Rate stats are recomputed from counting stats. BAA* is estimated as H / (H + outs recorded) because at-bats against aren't published."),
             h("li", null, "Stats: NJCAA Region XII and Region 24 stats pages, via The Baseball Cube. Ohio records: OCCAC standings. Divisions: MCCAA and OCCAC."),
             h("li", null, "Roster details (position, B/T, high school, hometown) are filled for Delta, Henry Ford, Jackson and Mid Michigan; elsewhere they're blank until added.")))),

@@ -45,8 +45,12 @@
   function tlink(s, short) { return link("t-" + s.id, short ? s.short : s.name); }
   function logo(s, size) {
     var box = h("span", { class: size === "mini" ? "mini" : "logo" });
-    if (LOGOS[s.id]) box.appendChild(h("img", { src: LOGOS[s.id], alt: s.name + " logo" }));
-    else box.appendChild(h("span", { class: "mono", style: "background:" + s.c1 + ";border-bottom:4px solid " + s.c2 }, s.short.replace(/[^A-Za-z0-9&]/g, "").slice(0, 4)));
+    function mono() { return h("span", { class: "mono", style: "background:" + s.c1 + ";border-bottom:4px solid " + s.c2 }, s.short.replace(/[^A-Za-z0-9&]/g, "").slice(0, 4)); }
+    if (LOGOS[s.id]) {
+      var img = h("img", { src: LOGOS[s.id], alt: s.name + " logo", loading: "lazy", referrerpolicy: "no-referrer" });
+      img.onerror = function () { box.replaceChildren(mono()); };
+      box.appendChild(img);
+    } else box.appendChild(mono());
     return box;
   }
   function toast(msg) { var t = h("div", { class: "toast", role: "status" }, msg); document.body.appendChild(t); setTimeout(function () { t.remove(); }, 1800); }
@@ -66,6 +70,7 @@
     bt: { k: "_bt", l: "B/T", t: "Bats/Throws", cls: "l", v: function (r) { return r.p.bt === "NA" ? "" : r.p.bt; }, asc: true },
     home: { k: "_home", l: "Hometown", t: "Hometown", cls: "l", v: function (r) { return r.p.home === "NA" ? "" : r.p.home; }, asc: true },
     hs: { k: "_hs", l: "High School", t: "High school", cls: "l", v: function (r) { return r.p.hs === "NA" ? "" : r.p.hs; }, asc: true },
+    major: { k: "_major", l: "Major", t: "Major / program of study", cls: "l", v: function (r) { return r.p.major === "NA" ? "" : r.p.major; }, asc: true },
     prev: { k: "_prev", l: "Prev. School", t: "Previous college", cls: "l", v: function (r) { return r.p.prev === "NA" ? "" : r.p.prev; }, asc: true },
     cls: { k: "_cls", l: "Cls", t: "Class (FR, redshirt FR, or first year where class isn't published)", cls: "l", v: function (r) { return r.p.cls; }, asc: true },
     pos: { k: "_pos", l: "Pos", t: "Position", cls: "l", v: function (r) { return r.p.pos === "NA" ? "" : r.p.pos; }, asc: true },
@@ -296,7 +301,7 @@
     var out = [head];
     if (favP.length) {
       var rows = favP.map(function (p) { return { p: p, b: B[p.id], r: PI[p.id] }; });
-      out.push(table({ id: "favp", title: "Favorite Players", file: "favorite-players", cols: [C.fname, C.school, C.cls, C.pos, C.bt, C.home, C.hs,
+      out.push(table({ id: "favp", title: "Favorite Players", file: "favorite-players", cols: [C.fname, C.school, C.cls, C.pos, C.bt, C.home, C.hs, C.major,
         { k: "_line", l: "Batting", t: "BA/OBP/SLG, HR, AB", cls: "l", nosort: true, v: function (r) { return r.b ? r3(r.b.BA) + "/" + r3(r.b.OBP) + "/" + r3(r.b.SLG) + ", " + r.b.HR + " HR, " + r.b.AB + " AB" : ""; } },
         { k: "_pline", l: "Pitching", t: "ERA, IP, SO, BB", cls: "l", nosort: true, v: function (r) { return r.r ? f2(r.r.ERA) + " ERA, " + r.r.IP + " IP, " + r.r.SO + " SO, " + r.r.BB + " BB" : ""; } },
         { k: "_sc", l: "Score", t: "Best composite score (hitting or pitching)", v: function (r) { var a = r.b && r.b.score, c = r.r && r.r.score; var m = Math.max(a == null ? -1 : a, c == null ? -1 : c); return m < 0 ? "" : m.toFixed(1); }, sortv: function (r) { return Math.max((r.b && r.b.score) || 0, (r.r && r.r.score) || 0); } }],
@@ -360,7 +365,7 @@
         h("p", null, h("strong", null, "Colors: "), h("span", { class: "swatch", style: "background:" + s.c1 }), s.c1 + "  ", h("span", { class: "swatch", style: "background:" + s.c2 }), s.c2),
         h("div", { class: "teambar", style: "background:linear-gradient(90deg," + s.c1 + " 70%," + s.c2 + " 70%)" })));
     return [crumbs([["Home", "home"], ["Teams", "teams"], [s.state, "lg-" + slug(s.state)], [s.name]]), head,
-      table({ id: "tr-" + id, title: "Freshman Roster", note: "Position, hometown and high school from team rosters, The Baseball Cube and PBR", file: slug(s.short) + "-roster", cols: [C.no, C.fname, C.cls, C.pos, C.bt, C.home, C.hs, C.prev], rows: rosterOf(id), sort: { k: "_name", dir: 1 } }),
+      table({ id: "tr-" + id, title: "Freshman Roster", note: "From team rosters, The Baseball Cube and PBR. \"(planned)\" majors come from the player's FieldLevel profile", file: slug(s.short) + "-roster", cols: [C.no, C.fname, C.cls, C.pos, C.bt, C.home, C.hs, C.major, C.prev], rows: rosterOf(id), sort: { k: "_name", dir: 1 } }),
       table({ id: "tb-" + id, title: "Freshman Batting", note: "Turquoise marks the team leader · rate leaders need 40 AB", file: slug(s.short) + "-batting", leaders: "bat", cols: [C.no, C.fname, C.cls, C.pos].concat(BAT, [C.score]), rows: bat, sort: { k: "PA", dir: -1 }, foot: batTotals(bat) }),
       table({ id: "tp-" + id, title: "Freshman Pitching", note: "Rate leaders need 15 IP", file: slug(s.short) + "-pitching", leaders: "pit", cols: [C.no, C.fname, C.cls].concat(PIT, [C.score]), rows: pit, sort: { k: "outs", dir: -1 }, foot: pitTotals(pit) })];
   }
@@ -472,7 +477,7 @@
       if (plUI.role === "pit" && !PI[p.id]) return false;
       return true;
     }).map(function (p) { return { p: p, b: B[p.id], r: PI[p.id] }; });
-    var cols = [C.fname, C.school, C.cls, C.pos, C.bt, C.home, C.hs,
+    var cols = [C.fname, C.school, C.cls, C.pos, C.bt, C.home, C.hs, C.major,
       { k: "_role", l: "Role", t: "Batting and/or pitching lines", cls: "l", v: function (r) { return (r.b ? "Bat" : "") + (r.b && r.r ? " / " : "") + (r.r ? "Pitch" : ""); }, asc: true },
       { k: "_line", l: "Line", t: "Key stats", cls: "l", nosort: true, v: function (r) { return (r.b ? r3(r.b.BA) + "/" + r3(r.b.OBP) + "/" + r3(r.b.SLG) : "") + (r.b && r.r ? "; " : "") + (r.r ? f2(r.r.ERA) + " ERA, " + r.r.IP + " IP" : ""); } }];
     cols.forEach(function (c) { if (!c.cell && c.v) c.cell = c.v; });

@@ -11,3 +11,5 @@
 ## Updating stats
 All numbers live in `stats.js`; team logos are in `logos.js`. Replace those files and push to update the site.
 Pages use links like `#p-player-name-team`, `#t-team`, `#lg-michigan`, `#d-michigan-mccaa-eastern`, `#leaders`, `#rankings`.
+
+After changing any file, raise the `?v=` number on its link in `index.html` so browsers load the new version right away.

@@ -512,6 +512,27 @@
       table({ id: "players", title: "Player Index", cols: cols, rows: rows, sort: { k: "_name", dir: 1 }, file: "players" })];
   }
 
+  var SOURCE_LIST = [["NJCAA Region XII baseball", "Freshman stats for Michigan and Ohio programs", "https://region12.prestosports.com/sports/bsb/index"], ["NJCAA Region XXIV baseball", "Vincennes stats and record", "https://njcaa24.prestosports.com/sports/bsb/index"], ["MCCAA baseball", "Michigan divisions, standings and team stats", "https://mccaa.prestosports.com/sports/bsb/index"], ["OCCAC baseball", "Ohio divisions, standings and team stats", "https://occac.org/sports/bsb/2025-26/teams/hocking"], ["The Baseball Cube", "Stats compilation and player details", "https://www.thebaseballcube.com/"], ["Prep Baseball Report (PBR)", "Player details, including high school and handedness", "https://www.prepbaseball.com/"], ["FieldLevel", "Majors marked \"(planned)\"", "https://www.fieldlevel.com/"]];
+  var SCHOOL_SOURCES = [["hfc", "Team stats page", "https://www.mccaa.org/sports/bsb/2025-26/teams/henryfordcollege", 0], ["jc", "2025-26 roster", "https://jccmi.prestosports.com/sports/bsb/2025-26/roster", 1], ["mcc", "2024-25 roster file", "https://mccaa.prestosports.com/sports/bsb/2024-25/files/macomb_baseball_roster.docx", 0], ["mott", "Team stats page", "https://mccaa.org/sports/bsb/2025-26/teams/mottcommunitycollege", 0], ["sc", "Team stats page", "https://www.njcaaregion12.org/sports/bsb/2025-26/teams/schoolcraftcollege", 0], ["sc4", "2025-26 roster", "https://www.sc4skippers.com/sports/bsb/2025-26/roster", 1], ["acc", "2025-26 roster", "https://acclumberjacks.com/sports/bsb/2025-26/roster", 1], ["bay", "2025-26 roster", "https://www.baycollegenorse.com/sports/bsb/2025-26/roster", 1], ["delta", "2025-26 roster", "https://delta.prestosports.com/sports/bsb/2025-26/roster", 0], ["grcc", "Team roster", "https://grccraiders.com/sports/baseball/roster", 0], ["mmc", "2025-26 roster", "https://www.midmichlakers.com/sports/bsb/2025-26/roster", 1], ["mcc-j", "2025-26 roster", "https://muskegonjayhawks.com/sports/bsb/2025-26/roster", 1], ["gocc", "The Baseball Cube team page", "https://www.thebaseballcube.com/content/stats_college/2026~21161", 0], ["kvcc", "Team stats page", "https://athletics.kvcc.edu/sports/bsb/2025-26/teams", 0], ["kcc", "PBR team preview", "https://www.prepbaseball.com/news/MI/2026-juco-team-preview--kellogg-cc-bruins", 0], ["lmc", "Team stats page", "https://redhawks.lakemichigancollege.edu/sports/bsb/2025-26/teams", 0], ["lcc", "Team baseball page", "https://www.lccstars.com/sports/bsb/headlines-featured", 0], ["mua", "2024-25 team stats page", "https://ancilla.prestosports.com/sports/bsb/2024-25/teams", 0], ["vu", "2024-25 roster", "https://vincennes.prestosports.com/sports/bsb/2024-25/roster", 0], ["b-s", "2025-26 roster", "https://ohio.bscbobcats.com/sports/bsb/2025-26/roster", 1], ["csc", "2025-26 roster", "https://www.clarkstateeagles.com/sports/bsb/2025-26/roster", 0], ["tri-c", "2025-26 roster (positions only)", "https://athletics.tri-c.edu/sports/bsb/2025-26/roster", 1], ["escc", "2025-26 roster", "https://athletics.edisonohio.edu/sports/bsb/2025-26/roster", 0], ["lake", "Team baseball news", "https://athletics.lakelandcc.edu/sports/bsb/2025-26/news", 0], ["hock", "2025-26 roster", "https://athletics.hocking.edu/sports/bsb/2025-26/roster", 1], ["lccc", "2025-26 roster", "https://athletics.lorainccc.edu/sports/bsb/2025-26/roster", 1], ["occ", "2025-26 roster", "https://www.owensexpress.com/sports/bsb/2025-26/roster", 1], ["tscc", "2025-26 roster", "https://terrastatetitans.com/sports/bsb/2025-26/roster", 1]];
+  function ext(url, text) { return h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, text); }
+  function pageSources() {
+    setNav("sources"); document.title = "Sources | " + SITE;
+    return [crumbs([["Home", "home"], ["Sources"]]),
+      h("div", { class: "pagehead" }, h("div", { class: "meta" }, h("h1", null, "Sources"), h("p", { class: "lede" }, "Where the stats and player details on this site come from. Anything not found in these sources is shown as NA or left blank."))),
+      h("section", { class: "section" }, h("div", { class: "sechead" }, h("h2", null, "Stats and player details")),
+        h("div", { class: "tablewrap" }, h("table", { class: "stats" }, h("thead", null, h("tr", null, h("th", { class: "l" }, "Source"), h("th", { class: "l" }, "Used for"))),
+          h("tbody", null, SOURCE_LIST.map(function (r) { return h("tr", null, h("td", { class: "l" }, ext(r[2], r[0])), h("td", { class: "l" }, r[1])); }))))),
+      h("section", { class: "section" }, h("div", { class: "sechead" }, h("h2", null, "School pages")),
+        h("p", { class: "lede", style: "margin:8px 0" }, "Rosters marked \"Yes\" were read directly on November 4, 2026. For other schools, player details were compiled earlier from team rosters, The Baseball Cube and PBR, and the link is the best page on record for that school."),
+        h("div", { class: "tablewrap" }, h("table", { class: "stats" }, h("thead", null, h("tr", null, h("th", { class: "l" }, "School"), h("th", { class: "l" }, "Page"), h("th", { class: "l" }, "Read directly"))),
+          h("tbody", null, SCHOOL_SOURCES.map(function (r) { return h("tr", null, h("td", { class: "l" }, tlink(S[r[0]])), h("td", { class: "l" }, ext(r[2], r[1])), h("td", { class: "l" }, r[3] ? "Yes" : "No")); }))))),
+      h("section", { class: "infobox" }, h("h3", null, "Notes"),
+        h("ul", null,
+          h("li", null, "Positions shown as \"2B or OF\" mean two sources disagree. The first is the position already on file, and the second is from the school's roster."),
+          h("li", null, "Bats/throws from the Tri-C roster are not used because that roster lists left-handed pitchers as throwing right-handed."),
+          h("li", null, "Team colors come from each school's logo or official branding. Some are approximate. Logos belong to their schools.")))];
+  }
+
   function pageGlossary() {
     setNav("glossary"); document.title = "Glossary | " + SITE;
     var dl = h("dl", { class: "glossary" });
@@ -541,6 +562,7 @@
     var hsh = decodeURIComponent(location.hash.replace(/^#/, ""));
     if (!hsh || hsh === "home") return pageHome();
     if (hsh === "players") return pagePlayers();
+    if (hsh === "sources") return pageSources();
     if (hsh === "teams") return pageTeams();
     if (hsh === "leaders") return pageLeaders();
     if (hsh === "rankings") return pageRankings();
